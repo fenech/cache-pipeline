@@ -1,0 +1,29 @@
+resources:
+  - name: repo
+    type: git
+    source:
+      uri: https://github.com/fenech/cache-pipeline.git
+
+jobs:
+  - name: build
+    public: true
+    serial: true
+    plan:
+      - get: repo
+      - task: build
+        privileged: true
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source: { repository: vito/oci-build-task }
+          params:
+            CONTEXT: repo/frontend
+          inputs:
+            - name: repo
+          outputs:
+            - name: image
+          caches:
+            - path: cache
+          run:
+            path: build
